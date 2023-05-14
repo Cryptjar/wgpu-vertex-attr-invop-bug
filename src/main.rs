@@ -13,7 +13,9 @@ use winit::{
 use with_color::WithColor;
 
 mod only_pos;
+//mod only_pos_instanced;
 mod with_color;
+//mod with_color_instanced;
 
 struct RenderContext {
     config: wgpu::SurfaceConfiguration,
@@ -162,6 +164,24 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                     .texture
                     .create_view(&wgpu::TextureViewDescriptor::default());
 
+                let secondary_pass = {
+                    let mut secondary_pass = context.device.create_render_bundle_encoder(
+                        &wgpu::RenderBundleEncoderDescriptor {
+                            label: None,
+                            color_formats: &[Some(context.config.format)],
+                            depth_stencil: None,
+                            sample_count: 1,
+                            multiview: None,
+                        },
+                    );
+
+                    // Render the objects
+                    only_pos.render(&mut secondary_pass, &context);
+                    with_color.render(&mut secondary_pass, &context);
+
+                    secondary_pass.finish(&Default::default())
+                };
+
                 // Create a command encoder (to record draw calls)
                 let mut encoder = context
                     .device
@@ -181,9 +201,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                         depth_stencil_attachment: None,
                     });
 
-                    // Render the objects
-                    only_pos.render(&mut pass, &context);
-                    with_color.render(&mut pass, &context);
+                    pass.execute_bundles([&secondary_pass]);
                 }
 
                 // Submit command buffer and present frame

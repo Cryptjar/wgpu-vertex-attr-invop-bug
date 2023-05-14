@@ -133,7 +133,7 @@ impl WithColor {
 
     pub(crate) fn render<'a, 'b, 'c: 'a>(
         &'a self,
-        pass: &'b mut wgpu::RenderPass<'a>,
+        pass: &'b mut wgpu::RenderBundleEncoder<'a>,
         context: &'c RenderContext,
     ) {
         pass.set_pipeline(&self.render_pipeline);
