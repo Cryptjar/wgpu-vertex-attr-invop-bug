@@ -89,6 +89,7 @@ impl WithColor {
                 });
 
         const INSTANCE_PER_SIDE: usize = 4;
+        const OFFSET: f32 = 0.05;
         const INSTANCE_DISPLACEMENT: f32 = 0.1;
         const SCALE: f32 = 0.09;
         // A square of shape instances.
@@ -100,8 +101,8 @@ impl WithColor {
                         [0.0, SCALE, 0.0, 0.0],
                         [0.0, 0.0, SCALE, 0.0],
                         [
-                            x as f32 * INSTANCE_DISPLACEMENT,
-                            y as f32 * INSTANCE_DISPLACEMENT,
+                            x as f32 * INSTANCE_DISPLACEMENT + OFFSET,
+                            y as f32 * INSTANCE_DISPLACEMENT + OFFSET,
                             0.0,
                             1.0,
                         ],

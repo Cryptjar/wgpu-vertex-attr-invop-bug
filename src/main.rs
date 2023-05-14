@@ -134,13 +134,14 @@ impl RenderContext {
 
 async fn run(event_loop: EventLoop<()>, window: Window) {
     let mut context = RenderContext::new(&window).await;
-    let mut object: Either<OnlyPos, WithColor> = Either::Left(OnlyPos::new(&context));
+    let only_pos = OnlyPos::new(&context);
+    let with_color = WithColor::new(&context);
 
     event_loop.run(move |event, _, control_flow| {
         // Have the closure take ownership of the resources.
         // `event_loop.run` never returns, therefore we must do this to ensure
         // the resources are properly cleaned up.
-        let _ = (&context, &object);
+        let _ = (&context,);
 
         log::trace!("Event: {:?}", event);
 
@@ -180,11 +181,9 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                         depth_stencil_attachment: None,
                     });
 
-                    // Render the object
-                    match &object {
-                        Either::Left(only_pos) => only_pos.render(&mut pass, &context),
-                        Either::Right(with_color) => with_color.render(&mut pass, &context),
-                    }
+                    // Render the objects
+                    only_pos.render(&mut pass, &context);
+                    with_color.render(&mut pass, &context);
                 }
 
                 // Submit command buffer and present frame
@@ -212,20 +211,6 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                         VirtualKeyCode::F12 | VirtualKeyCode::Escape => {
                             warn!("F12 pressed, quit!");
                             std::process::exit(0);
-                        }
-                        VirtualKeyCode::NumpadEnter | VirtualKeyCode::Return => {
-                            if is_pressed {
-                                let use_only_pos = !matches!(object, Either::Left(_));
-
-                                // Swap object
-                                object = {
-                                    if use_only_pos {
-                                        Either::Left(OnlyPos::new(&context))
-                                    } else {
-                                        Either::Right(WithColor::new(&context))
-                                    }
-                                };
-                            }
                         }
                         _ => (),
                     }
