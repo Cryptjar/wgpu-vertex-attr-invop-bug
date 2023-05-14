@@ -1,0 +1,42 @@
+body {
+	background-color: lightgray;
+	display: flex;
+	flex-flow: column nowrap;
+	justify-content: space-between;
+	height: 100vh;
+	margin: 0px;
+	padding: 0px;
+}
+
+header h1 {
+	text-align: center;
+	font-family: monospace;
+	font-size: xxx-large;
+}
+
+canvas {
+	width: 100vw;
+	height: 100vh;
+}
+
+main {
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: space-around;
+}
+
+footer {
+	margin-top: 2em;
+	padding: 1em;
+	font-family: monospace;
+	text-align: center;
+}
+
+footer p {
+	margin: 1px;
+}
+
+footer .small {
+	font-size: smaller;
+	overflow-wrap: break-word;
+}

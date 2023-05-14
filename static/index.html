@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+	<title>wgpu-vertex-attr-invop-bug</title>
+	<link rel="stylesheet" href="style.css" />
+
+	<!-- custom styling -->
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" type="image/png" href="assets/icon2.png">
+</head>
+
+<body class="background">
+	<!-- Dummy body will be replaced by JavaScript app -->
+	<h1>wgpu-vertex-attr-invop-bug</h1>
+
+	<div id="init_text" style="color: red;">
+		<!-- Should be immediately replaced by JavaScript, if enabled -->
+		<!-- Alternatively we could probably use a noscript tag, but this works too -->
+		<h3 id="init_text_title">
+			No JavaScript!
+		</h3>
+		<p id="init_text_message">
+			It appears that your browser does not support JavaScript or JavaScript has been disabled.
+			Please enable JavaScript or use a different Browser.
+		</p>
+	</div>
+
+	<script>
+		document.getElementById("init_text").style = "";
+		document.getElementById("init_text_title").innerHTML = "Loading...";
+		document.getElementById("init_text_message").innerHTML = "Downloading the JavaScript bootstrap file...";
+	</script>
+
+	<hr />
+
+	<p>
+		This page is written in the Rust programming language and compiled as a WebAssembly file.
+		However, to execute a WebAssembly binary, first some initial JavaScript code needs to load the WebAssembly file,
+		which can take a while depending on how big the binary is and the speed of your Internet connection.
+	</p>
+
+	<!-- An somewhat complicated JS snippet just too first load the JS glue and then the WASM file, both with error checking. -->
+	<script type="module">
+		var modulePath = "./wgpu-vertex-attr-invop-bug.js";
+		var wasmPath = "./wgpu-vertex-attr-invop-bug_bg.wasm";
+		import(modulePath).then(
+			// JS module success handler
+			module => {
+				document.getElementById("init_text_message").innerHTML = "Downloading the WebAssembly file...";
+				var input = fetch(new URL(wasmPath, import.meta.url)).then(
+					// WASM success handler
+					resp => {
+						if (!resp.ok) {
+							console.log(resp);
+
+							document.getElementById("init_text").style = "color: red;";
+							document.getElementById("init_text_title").innerHTML = "Failed to fetch WebAssembly file!";
+							document.getElementById("init_text_message").innerHTML = "Failed to download the WebAssembly file:<br/>Status: " + resp.status + " " + resp.statusText;
+
+							Promise.reject("WebAssembly " + wasmPath + " not found.")
+						} else {
+							try {
+								document.getElementById("init_text_title").innerHTML = "Staring...";
+								document.getElementById("init_text_message").innerHTML = "Executing the WebAssembly...";
+
+								module.default(resp);
+							} catch (ex) {
+								console.log("Exception: " + e);
+								window.onerror();
+							}
+						}
+					},
+					// WASM error handler
+					e => {
+						console.log(e);
+
+						document.getElementById("init_text").style = "color: red;";
+						document.getElementById("init_text_title").innerHTML = "Failed to fetch WebAssembly file!";
+						document.getElementById("init_text_message").innerHTML = "Failed to downloading the WebAssembly file:<br/>Fetch: " + e;
+
+						Promise.reject("WebAssembly " + wasmPath + " not found.")
+					}
+				)
+			},
+			// JS module error handler
+			e => {
+				console.log(e);
+
+				document.getElementById("init_text").style = "color: red;";
+				document.getElementById("init_text_title").innerHTML = "Failed to load JS init file!";
+				document.getElementById("init_text_message").innerHTML = "Failed to download the JavaScript bootstrap file:<br/>" + e;
+
+				Promise.reject("JS Module " + modulePath + " not found.")
+			}
+		)
+	</script>
+</body>
+
+</html>

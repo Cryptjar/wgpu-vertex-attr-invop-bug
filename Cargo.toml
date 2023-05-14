@@ -1,0 +1,26 @@
+[package]
+name = "wgpu-vertex-attr-invop-bug"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bytemuck = { version = "1.12.3", features = ["derive"] }
+env_logger = "0.10.0"
+log = "0.4.17"
+pollster = "0.3.0"
+winit = "0.27.5"
+wgpu = "0.15.0"
+
+[target.wasm32-unknown-unknown.dependencies]
+console_error_panic_hook = "0.1.6"
+console_log = "0.2.0"
+wgpu = { version = "0.15", features = ["webgl"]}
+wasm-bindgen-futures = "0.4.30"
+web-sys = { version = "0.3", features = [
+    "Document",
+    "Window",
+    "Element",
+]}
+
+# Needs to be the same as the wasm-bindgen-cli
+wasm-bindgen = "=0.2.83"
