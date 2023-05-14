@@ -88,7 +88,7 @@ impl OnlyPos {
                     usage: wgpu::BufferUsages::INDEX,
                 });
 
-        const INSTANCE_PER_SIDE: usize = 4;
+        const INSTANCE_PER_SIDE: usize = 1;
         const INSTANCE_DISPLACEMENT: f32 = 0.1;
         const SCALE: f32 = 0.09;
         // A square of shape instances.
