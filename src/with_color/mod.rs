@@ -5,7 +5,7 @@ use std::borrow::Cow;
 
 use crate::RenderContext;
 
-pub(crate) struct OnlyPos {
+pub(crate) struct WithColor {
     render_pipeline: wgpu::RenderPipeline,
     /// The hexagon vertex buffer.
     shapes_vertex_buffer: wgpu::Buffer,
@@ -16,7 +16,7 @@ pub(crate) struct OnlyPos {
     instance_count: u32,
 }
 
-impl OnlyPos {
+impl WithColor {
     pub(crate) fn new(context: &RenderContext) -> Self {
         //
         // Pipeline setup
@@ -157,11 +157,13 @@ impl OnlyPos {
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
 struct PolygonVertex {
     position: [f32; 3],
+    color: [f32; 3],
 }
 impl PolygonVertex {
     fn desc<'a>() -> wgpu::VertexBufferLayout<'a> {
         const ATTR: &[wgpu::VertexAttribute] = &wgpu::vertex_attr_array![
             0 => Float32x3,
+            1 => Float32x3,
         ];
 
         wgpu::VertexBufferLayout {
@@ -208,26 +210,32 @@ const HEXAGON_VERTICES: &[PolygonVertex] = &[
     // Right vertex
     PolygonVertex {
         position: [HEXAGON_RADIUS, 0.0, 0.0],
+        color: [1.0, 0.0, 0.0],
     },
     // Bottom right vertex
     PolygonVertex {
         position: [HEXAGON_RADIUS / 2.0, HEXAGON_RADIUS * SQRT_3 / 2.0, 0.0],
+        color: [0.667, 0.667, -0.333],
     },
     // Bottom left vertex
     PolygonVertex {
         position: [-HEXAGON_RADIUS / 2.0, HEXAGON_RADIUS * SQRT_3 / 2.0, 0.0],
+        color: [0.0, 1.0, 0.0],
     },
     // Left vertex
     PolygonVertex {
         position: [-HEXAGON_RADIUS, 0.0, 0.0],
+        color: [-0.333, 0.667, 0.667],
     },
     // Top left vertex
     PolygonVertex {
         position: [-HEXAGON_RADIUS / 2.0, -HEXAGON_RADIUS * SQRT_3 / 2.0, 0.0],
+        color: [0.0, 0.0, 1.0],
     },
     // Top right vertex
     PolygonVertex {
         position: [HEXAGON_RADIUS / 2.0, -HEXAGON_RADIUS * SQRT_3 / 2.0, 0.0],
+        color: [0.667, -0.333, 0.667],
     },
 ];
 

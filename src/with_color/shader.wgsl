@@ -2,6 +2,7 @@
 /// Vertex input data
 struct VertexInput {
     @location(0) position: vec3<f32>,
+    @location(1) color: vec3<f32>,
 };
 /// Instance (vertex) input data
 struct InstanceInput {
@@ -16,6 +17,7 @@ struct InstanceInput {
 struct VertexOutput {
     @builtin(position) clip_position: vec4<f32>,
     @location(0) world_position: vec3<f32>,
+    @location(1) vertex_color: vec4<f32>,
 };
 
 fn rgb_to_srgb(rgb: vec3<f32>) -> vec3<f32> {
@@ -41,10 +43,13 @@ fn vs_main(vertex: VertexInput, instance: InstanceInput,) -> VertexOutput {
     output.clip_position = clip_pos;
     output.world_position = wpos;
 
+    let color = vertex.color;
+    output.vertex_color = vec4<f32>(color, 1.0);
+
     return output;
 }
 
 @fragment
 fn fs_main(input: VertexOutput) -> @location(0) vec4<f32> {
-    return vec4<f32>(rgb_to_srgb(vec3<f32>(input.world_position[0], 1.0, (input.clip_position[0] / 100.) % 1.)), 1.0);
+    return vec4<f32>(rgb_to_srgb(input.vertex_color.rgb), 1.0);
 }
