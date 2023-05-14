@@ -1,4 +1,3 @@
-use either::Either;
 use only_pos::OnlyPos;
 use wgpu::TextureFormat;
 use winit::{event::Event, event_loop::ControlFlow};
@@ -6,16 +5,12 @@ use winit::{event::Event, event_loop::ControlFlow};
 use log::info;
 use log::warn;
 use winit::{
-    event::{ElementState, KeyboardInput, VirtualKeyCode, WindowEvent},
+    event::{KeyboardInput, VirtualKeyCode, WindowEvent},
     event_loop::EventLoop,
     window::Window,
 };
-use with_color::WithColor;
 
 mod only_pos;
-//mod only_pos_instanced;
-mod with_color;
-//mod with_color_instanced;
 
 struct RenderContext {
     config: wgpu::SurfaceConfiguration,
@@ -110,8 +105,6 @@ impl RenderContext {
             .first()
             .expect("No supported present modes");
 
-        let sample_flags = swapchain_format.describe().guaranteed_format_features.flags;
-
         let config = wgpu::SurfaceConfiguration {
             usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
             format: swapchain_format,
@@ -135,16 +128,10 @@ impl RenderContext {
 }
 
 async fn run(event_loop: EventLoop<()>, window: Window) {
-    let mut context = RenderContext::new(&window).await;
+    let context = RenderContext::new(&window).await;
     let only_pos = OnlyPos::new(&context);
-    let with_color = WithColor::new(&context);
 
     event_loop.run(move |event, _, control_flow| {
-        // Have the closure take ownership of the resources.
-        // `event_loop.run` never returns, therefore we must do this to ensure
-        // the resources are properly cleaned up.
-        let _ = (&context,);
-
         log::trace!("Event: {:?}", event);
 
         // Request an immediate redraw, if not changed by the event handler.
@@ -176,8 +163,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                     );
 
                     // Render the objects
-                    only_pos.render(&mut secondary_pass, &context);
-                    with_color.render(&mut secondary_pass, &context);
+                    only_pos.render(&mut secondary_pass);
 
                     secondary_pass.finish(&Default::default())
                 };
@@ -213,17 +199,12 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                     WindowEvent::KeyboardInput {
                         input:
                             KeyboardInput {
-                                virtual_keycode,
-                                state,
-                                scancode,
-                                ..
+                                virtual_keycode, ..
                             },
                         ..
                     },
                 ..
             } => {
-                let is_pressed = state == ElementState::Pressed;
-
                 if let Some(vk) = virtual_keycode {
                     match vk {
                         VirtualKeyCode::F12 | VirtualKeyCode::Escape => {
@@ -234,28 +215,6 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                     }
                 }
             }
-            /*
-            Event::WindowEvent {
-                event: WindowEvent::Resized(size),
-                ..
-            } => {
-                // Reconfigure the surface with the new size
-                context.resize(size);
-
-                // On macos the window needs to be redrawn manually after resizing
-                window.request_redraw();
-            }
-            Event::WindowEvent {
-                event: WindowEvent::ScaleFactorChanged { new_inner_size, .. },
-                ..
-            } => {
-                // Reconfigure the surface with the new size
-                context.resize(*new_inner_size);
-
-                // On macos the window needs to be redrawn manually after resizing
-                window.request_redraw();
-            }
-            */
             Event::WindowEvent {
                 event: WindowEvent::CloseRequested,
                 ..
