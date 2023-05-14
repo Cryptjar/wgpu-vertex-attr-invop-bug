@@ -54,46 +54,7 @@ impl RenderContext {
             .expect("Failed to create device");
         info!("{device:?}");
 
-        let mut caps = surface.get_capabilities(&adapter);
-
-        let format_priority = |format: &TextureFormat| {
-            if matches!(
-                format.describe().sample_type,
-                wgpu::TextureSampleType::Float { .. }
-            ) && format
-                .describe()
-                .guaranteed_format_features
-                .allowed_usages
-                .contains(wgpu::TextureUsages::RENDER_ATTACHMENT)
-            {
-                format.describe().components as u32 * 2 + format.describe().srgb as u32
-            } else {
-                0
-            }
-        };
-        caps.formats.sort_by_key(format_priority);
-        caps.formats.reverse();
-
-        let present_mode_priority = |present_mode: &wgpu::PresentMode| {
-            match present_mode {
-                // Fifo guarantees no tearing and keeps the framerate at the monitor refresh rate.
-                wgpu::PresentMode::Fifo => 10,
-                // Should not tear and keeps the framerate at the monitor refresh rate.
-                // Tears if the framerate is too low.
-                wgpu::PresentMode::FifoRelaxed => 9,
-                // Same as above.
-                wgpu::PresentMode::AutoVsync => 8,
-                // No tearing, but framerate can be higher than the monitor refresh rate.
-                wgpu::PresentMode::Mailbox => 7,
-                // No vsync at all.
-                wgpu::PresentMode::Immediate => 6,
-                // Goes through most modes above
-                wgpu::PresentMode::AutoNoVsync => 5,
-            }
-        };
-        caps.present_modes.sort_by_key(present_mode_priority);
-        caps.present_modes.reverse();
-
+        let caps = surface.get_capabilities(&adapter);
         info!("{caps:?}");
 
         let swapchain_format = *caps
